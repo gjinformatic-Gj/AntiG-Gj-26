@@ -9,6 +9,9 @@ import { DummyPaymentGateway } from './components/DummyPaymentGateway';
 import { PassWalletModal } from './components/PassWalletModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { CompareModal } from './components/CompareModal';
+import { AddEventModal } from './components/AddEventModal';
+import { SqliteSyncBar } from './components/SqliteSyncBar';
+import { dataSync, SqliteStats } from './services/dataSync';
 
 const DEFAULT_MAPS_KEY =
   (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string) ||
@@ -17,12 +20,15 @@ const DEFAULT_MAPS_KEY =
 export default function App() {
   const [theme, setTheme] = useState<ThemeMode>('terra');
   const [currentView, setCurrentView] = useState<'map' | 'explore' | 'artists' | 'compare' | 'wallet'>('map');
-  const [venues] = useState<Venue[]>(VENUES);
-  const [selectedVenue, setSelectedVenue] = useState<Venue>(VENUES[0]);
+  const [venues, setVenues] = useState<Venue[]>(() => dataSync.getCurrentVenues());
+  const [sqliteStats, setSqliteStats] = useState<SqliteStats>(() => dataSync.getLastStats());
+  const [selectedVenue, setSelectedVenue] = useState<Venue>(() => VENUES[0]);
   const [radiusKm, setRadiusKm] = useState<number>(5);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'split' | 'map' | 'list'>('split');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Map layer states
   const [showHeatmap, setShowHeatmap] = useState(true);
@@ -85,6 +91,52 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('garba_radar_tickets', JSON.stringify(tickets));
   }, [tickets]);
+
+  // Dynamic SQLite synchronization effect
+  useEffect(() => {
+    const unsubscribe = dataSync.subscribe((syncedVenues, stats) => {
+      if (syncedVenues && syncedVenues.length > 0) {
+        setVenues(syncedVenues);
+      }
+      if (stats) {
+        setSqliteStats(stats);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Ensure selectedVenue is always valid
+  useEffect(() => {
+    if (venues.length > 0 && (!selectedVenue || !venues.some((v) => v.id === selectedVenue.id))) {
+      setSelectedVenue(venues[0]);
+    }
+  }, [venues, selectedVenue]);
+
+  const handleEventCreated = (newVenue: Venue) => {
+    setSelectedVenue(newVenue);
+    setCurrentView('map');
+    setToastMessage(`✨ Ground "${newVenue.name}" dynamically saved to local SQLite & linked to Dashboard!`);
+    setTimeout(() => setToastMessage(null), 5000);
+  };
+
+  const handleDeleteVenue = async (id: string) => {
+    await dataSync.deleteVenue(id);
+    setToastMessage('🗑️ Ground removed from local SQLite database.');
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleResetDb = async () => {
+    await dataSync.resetToDefaults();
+    setToastMessage('🔄 SQLite database reset to default grounds.');
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleRefreshSync = async () => {
+    await dataSync.fetchVenues();
+    await dataSync.fetchStats();
+    setToastMessage('⚡ Dynamic data re-synced from SQLite database.');
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   const handleSaveApiKey = (newKey: string) => {
     setMapsApiKey(newKey);
@@ -213,15 +265,56 @@ export default function App() {
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onOpenAddEvent={() => setIsAddEventModalOpen(true)}
+        venueCount={venues.length}
       />
 
       {/* Main Content Area */}
       <main className="w-full pt-24 relative z-10 pb-16">
+        {/* Floating Dynamic Sync Toast Notification */}
+        {toastMessage && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-bounce max-w-lg w-full px-4 pointer-events-none">
+            <div
+              className={`px-5 py-3 rounded-2xl text-xs font-bold shadow-2xl border flex items-center justify-between gap-3 pointer-events-auto backdrop-blur-md ${
+                isTerra
+                  ? 'bg-white/95 text-[#2e3230] border-[#4a7c59] shadow-[#4a7c59]/15'
+                  : 'bg-slate-900/95 text-sky-200 border-sky-400 shadow-sky-400/20'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px] text-emerald-500">check_circle</span>
+                <span>{toastMessage}</span>
+              </div>
+              <button
+                onClick={() => setToastMessage(null)}
+                className="opacity-60 hover:opacity-100 p-1 cursor-pointer text-base"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
         {currentView === 'map' ? (
           /* ==============================================================
              SCREEN 1: LIVE GARBA GROUND RADAR DASHBOARD (Matching Image 3)
              ============================================================== */
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            {/* Real-time Zero-Dependency Local SQLite Sync Bar */}
+            <SqliteSyncBar
+              stats={sqliteStats}
+              theme={theme}
+              venues={venues}
+              onOpenAddEvent={() => setIsAddEventModalOpen(true)}
+              onRefreshSync={handleRefreshSync}
+              onDeleteVenue={handleDeleteVenue}
+              onResetDb={handleResetDb}
+              onSelectVenue={(v) => {
+                setSelectedVenue(v);
+                setCurrentView('map');
+              }}
+            />
+
             {/* Top Sub-header & Filter Toolbar */}
             <div
               className={`rounded-2xl p-4 md:p-5 shadow-sm flex flex-col gap-4 border ${
@@ -850,7 +943,22 @@ export default function App() {
           /* ==============================================================
              SCREEN 2: EXPLORE ALL VENUES DIRECTORY (Matching Image 5)
              ============================================================== */
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            {/* Real-time Zero-Dependency Local SQLite Sync Bar */}
+            <SqliteSyncBar
+              stats={sqliteStats}
+              theme={theme}
+              venues={venues}
+              onOpenAddEvent={() => setIsAddEventModalOpen(true)}
+              onRefreshSync={handleRefreshSync}
+              onDeleteVenue={handleDeleteVenue}
+              onResetDb={handleResetDb}
+              onSelectVenue={(v) => {
+                setSelectedVenue(v);
+                setCurrentView('map');
+              }}
+            />
+
             {/* Top Metric Strip & Hero Headline */}
             <section className="flex flex-col gap-6">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
@@ -1262,6 +1370,13 @@ export default function App() {
         onClose={() => setIsCompareOpen(false)}
         venues={venues}
         onBookVenue={handleOpenBooking}
+        theme={theme}
+      />
+
+      <AddEventModal
+        isOpen={isAddEventModalOpen}
+        onClose={() => setIsAddEventModalOpen(false)}
+        onEventCreated={handleEventCreated}
         theme={theme}
       />
 

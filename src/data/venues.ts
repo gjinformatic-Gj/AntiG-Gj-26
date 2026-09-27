@@ -1,4 +1,4 @@
-import { Venue } from '../types';
+import { Venue } from '../types/index.ts';
 
 export const VENUES: Venue[] = [
   {
@@ -387,5 +387,77 @@ export const VENUES: Venue[] = [
     soundSystem: 'QSC WideLine Sound Array',
     gatesOpen: '7:00 PM',
     aartiTime: '8:00 PM',
+  },
+  {
+    id: 'ymca-club-garba',
+    name: 'YMCA International Centre',
+    subtitle: 'SG Highway Premier Event',
+    location: 'SG Highway, Makarba, Ahmedabad',
+    area: 'Prahlad Nagar & Satellite',
+    coordinates: { lat: 23.0035, lng: 72.5020 },
+    distanceKm: 4.5,
+    travelMinutes: 14,
+    rating: 4.9,
+    reviewsCount: 2450,
+    artist: {
+      name: 'Aishwarya Majmudar',
+      subtitle: 'Star Singer • Live Fusion',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpD9ApQ48lt7BsNWWzFrY64pTQ5R-vEqdZugGP6uS_ZOmZy010UOegOnuaw6yrxA3QTfKl8oUbFfRhICFaU4_8HNbeS8KdisV1CeU5iQHysyL-XVSts9LmSNkJA7wrkcmQI8u-akrnv1G2hLe0-EntoB_iChzZ2A7znwd45GFOsfhgfdX523wulVHm0kNwYKMXEgNr5C5rN33XhvlWCiXuFc3AjnfuIpf-hZcY99JApC8BszOkU7w',
+      badge: 'Pop Idol',
+      genre: 'Bollywood Fusion Garba'
+    },
+    curfew: 'Strict 12:30 AM Curfew',
+    curfewTime: '12:30 AM Curfew',
+    isOvernight: false,
+    prices: { single: 600, couple: 1100, season: 3500 },
+    originalPrice: 850,
+    amenities: ['Covered AC Domes', 'Premium Dining', 'Valet Parking'],
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD7zeAP-xiCIDJBDYuzqx8Xja7nbM80wNyeMU3egvhZB3KetgbSqejoJ7VmwsGAQKuzMGAntJkGSDxbgSxy79ODftT8MJyUVf0PNa4oLgULtQZfyj-3VHcHLKvdqOPtFpog8BtEfGXfUktLaXevOVWX5y9NR_Cly9L2p-ct752bD9uOENmd8Cz8Dvs_8Dy1ZSvcZUftB3K8-5OQl3lmaH8WGFfjpsRy_9svucCG2GMrI7_8QveyCME',
+    rushLevel: 'Near Capacity',
+    passesLeft: 45,
+    isOfficial: true,
+    isCelebrity: true,
+    soldPercent: 88,
+    danceSurface: 'Premium Wooden Sprung Floor',
+    parkingType: 'Dedicated Member Parking & Valet',
+    soundSystem: 'L-Acoustics K2',
+    gatesOpen: '7:30 PM',
+    aartiTime: '8:15 PM'
+  },
+  {
+    id: 'gujarat-university-ground',
+    name: 'Gujarat University Exhibition Centre',
+    subtitle: 'Navrangpura Central Ground',
+    location: '132 Ring Road, Navrangpura, Ahmedabad',
+    area: 'Bodakdev & SG Highway',
+    coordinates: { lat: 23.0360, lng: 72.5440 },
+    distanceKm: 5.2,
+    travelMinutes: 18,
+    rating: 4.5,
+    reviewsCount: 1800,
+    artist: {
+      name: 'Local University Troupe',
+      subtitle: 'Student Special Raas',
+      image: '',
+      badge: 'Budget Friendly',
+      genre: 'Traditional Dhol / Sheri Raas'
+    },
+    curfew: 'Allowed Until 1:00 AM',
+    curfewTime: '1:00 AM Curfew',
+    isOvernight: false,
+    prices: { single: 250, couple: 450, season: 1200 },
+    originalPrice: 350,
+    amenities: ['Massive Open Ground', 'Street Food', 'Public Transit Access'],
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCee_O82qTYEeDfrEGMHTs0zUvuNFtaMOKN71uD6e2tKUXBY3zBCBA8DpgoqcrG9QyNcBXK5AdQqeLm5u6REMi5Kh8x-0m4mhZt9AnHy5f7yegbl6lU24ex_HOiDZ4X0gukMykA3G7Qlxacdy6HWxZMDmc1-xMntWdN4f935ofcJfZfToLaUwqTwyQW1FU9Rno-TaQ5FewJS4gbKQf0rhaWKVIO6FlwAyFi0PVdftRkq_ffrvBLhJ8',
+    rushLevel: 'Brisk',
+    passesLeft: 300,
+    isOfficial: true,
+    isCelebrity: false,
+    soldPercent: 60,
+    danceSurface: 'Hardened Earth',
+    parkingType: 'Open Ground Parking',
+    soundSystem: 'Standard Line Array',
+    gatesOpen: '7:00 PM',
+    aartiTime: '8:00 PM'
   }
 ];

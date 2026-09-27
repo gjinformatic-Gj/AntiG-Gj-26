@@ -1,14 +1,26 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import {defineConfig, Plugin} from 'vite';
+import { handleApiRoute } from './src/server/apiMiddleware.ts';
+
+function sqliteSyncPlugin(): Plugin {
+  return {
+    name: 'vite-sqlite-dynamic-sync',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        handleApiRoute(req, res, next);
+      });
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), sqliteSyncPlugin()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {

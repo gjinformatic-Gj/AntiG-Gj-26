@@ -11,6 +11,8 @@ interface NavbarProps {
   onOpenApiKeyModal: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  onOpenAddEvent?: () => void;
+  venueCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -23,6 +25,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenApiKeyModal,
   searchQuery,
   onSearchChange,
+  onOpenAddEvent,
+  venueCount,
 }) => {
   const isTerra = theme === 'terra';
 
@@ -106,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 isTerra ? 'bg-[#4a7c59]' : 'bg-sky-400'
               }`}
             />
-            <span>18 Grounds Live Tonight</span>
+            <span>{venueCount !== undefined ? `${venueCount} Grounds Synced (SQLite)` : '18 Grounds Live Tonight'}</span>
           </div>
         </div>
 
@@ -211,6 +215,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="material-symbols-outlined text-[18px]">key</span>
             <span className="hidden xl:inline font-semibold">Maps Key</span>
           </button>
+
+          {/* Add Event Button */}
+          {onOpenAddEvent && (
+            <button
+              onClick={onOpenAddEvent}
+              title="Add New Garba Event with Custom Options & Sync to SQLite"
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm cursor-pointer ${
+                isTerra
+                  ? 'bg-[#4a7c59] text-white hover:bg-[#3d694b]'
+                  : 'bg-sky-400 text-slate-950 hover:bg-sky-300 font-extrabold'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[17px]">add_circle</span>
+              <span className="hidden sm:inline">Add Event</span>
+            </button>
+          )}
 
           {/* My Passes Wallet Button */}
           <button

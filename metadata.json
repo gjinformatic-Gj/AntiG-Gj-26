@@ -1,0 +1,6 @@
+{
+  "name": "Garba Radar 2026 - Live Venues & Passes",
+  "description": "Live interactive radar, official ground map, and instant pass booking for Navratri Dandiya & Garba 2026 across Gujarat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
